@@ -1,16 +1,50 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>CodePen - Heart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trái Tim Ấm Áp</title>
   <link rel="stylesheet" href="./style.css">
-
 </head>
 <body>
-<!-- partial:index.partial.html -->
-<canvas id="heart"></canvas>
-<!-- partial -->
-  <script  src="./script.js"></script>
+  <canvas id="heart"></canvas>
+  
+  <!-- Bảng điều khiển -->
+  <div id="controls">
+    <div class="control-group">
+      <label>Tốc độ: <span id="speedValue">1.0</span>x</label>
+      <input type="range" id="speedControl" min="0" max="2" step="0.1" value="1.0">
+    </div>
+    
+    <div class="control-group">
+      <label>Số lượng hạt: <span id="particleValue">150</span></label>
+      <input type="range" id="particleControl" min="30" max="300" step="10" value="150">
+    </div>
+    
+    <div class="control-group">
+      <label>Màu sắc:</label>
+      <div class="color-options">
+        <button class="color-btn active" data-color="red" style="background: #ff1744;"></button>
+        <button class="color-btn" data-color="pink" style="background: #ff6b9d;"></button>
+        <button class="color-btn" data-color="purple" style="background: #9c27b0;"></button>
+        <button class="color-btn" data-color="blue" style="background: #2979ff;"></button>
+        <button class="color-btn" data-color="green" style="background: #00e676;"></button>
+        <button class="color-btn" data-color="gold" style="background: #ffd700;"></button>
+        <button class="color-btn" data-color="white" style="background: #ffffff;"></button>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <label>
+        <input type="checkbox" id="textToggle" checked> Hiển thị chữ
+      </label>
+      <input type="text" id="textInput" value="❤ Yêu Thương ❤" placeholder="Nhập chữ muốn hiển thị...">
+      <button id="updateTextBtn">Cập nhật</button>
+    </div>
+    
+    <button id="toggleControls">Ẩn điều khiển</button>
+  </div>
 
+  <script src="./script.js"></script>
 </body>
 </html>
