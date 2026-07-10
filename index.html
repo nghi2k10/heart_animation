@@ -9,6 +9,11 @@
 <body>
   <canvas id="heart"></canvas>
   
+  <!-- Nút toggle luôn hiển thị -->
+  <button id="toggleControlsBtn" class="toggle-fixed" title="Mở bảng điều khiển">
+    ⚙️
+  </button>
+  
   <!-- Bảng điều khiển -->
   <div id="controls">
     <div class="control-group">
@@ -42,7 +47,13 @@
       <button id="updateTextBtn">Cập nhật</button>
     </div>
     
-    <button id="toggleControls">Ẩn điều khiển</button>
+    <div class="control-group">
+      <label>
+        <input type="checkbox" id="starToggle" checked> Hiệu ứng sao băng
+      </label>
+    </div>
+    
+    <button id="hideControls">Ẩn điều khiển</button>
   </div>
 
   <script src="./script.js"></script>
