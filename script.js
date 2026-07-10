@@ -22,29 +22,65 @@ window.isDevice = (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera min
 ));
 
 var loaded = false;
+
+// === HÀM KHỞI TẠO CANVAS SẮC NÉT CHO MOBILE ===
+function setupCanvas(canvas, ctx) {
+    var dpr = window.devicePixelRatio || 1;
+    var mobile = window.isDevice;
+    var koef = mobile ? 0.6 : 1; // Tăng lên 0.6 để rõ hơn trên mobile
+    
+    // Kích thước hiển thị (CSS)
+    var displayWidth = koef * window.innerWidth;
+    var displayHeight = koef * window.innerHeight;
+    
+    // Kích thước thực tế (vẽ) - nhân với dpr để sắc nét
+    var width = displayWidth * dpr;
+    var height = displayHeight * dpr;
+    
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.width = displayWidth + 'px';
+    canvas.style.height = displayHeight + 'px';
+    
+    // Reset scale trước khi set lại
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    
+    return {
+        width: displayWidth,
+        height: displayHeight,
+        dpr: dpr,
+        displayWidth: displayWidth,
+        displayHeight: displayHeight
+    };
+}
+
 var init = function() {
   if (loaded) return;
   loaded = true;
 
   var mobile = window.isDevice;
-  var koef = mobile ? 0.5 : 1;
   var canvas = document.getElementById('heart');
   var ctx = canvas.getContext('2d');
-  var width = canvas.width = koef * innerWidth;
-  var height = canvas.height = koef * innerHeight;
   var rand = Math.random;
+  
+  // === KHỞI TẠO CANVAS SẮC NÉT ===
+  var size = setupCanvas(canvas, ctx);
+  var width = size.width;
+  var height = size.height;
+  var dpr = size.dpr;
 
-  // Cấu hình
+  // Cấu hình - Tối ưu cho mobile
   var config = {
     speed: 1.0,
-    particleCount: mobile ? 80 : 150,
-    traceCount: mobile ? 15 : 40,
+    particleCount: mobile ? 60 : 150, // Giảm số hạt trên mobile
+    traceCount: mobile ? 12 : 40, // Giảm trace trên mobile
     color: '#ff1744',
     showText: true,
     text: '❤ Have a good day ❤',
     traceK: 0.4,
     timeDelta: 0.01,
-    showShootingStars: true // Thêm cấu hình cho sao băng
+    showShootingStars: true
   };
 
   // Bảng màu
@@ -87,9 +123,9 @@ var init = function() {
 
   // === TẠO HIỆU ỨNG SAO BĂNG ===
   
-  // Tạo các ngôi sao nền
+  // Tạo các ngôi sao nền - Giảm số lượng trên mobile
   var stars = [];
-  var starCount = mobile ? 80 : 150;
+  var starCount = mobile ? 50 : 150;
   for (var i = 0; i < starCount; i++) {
     stars.push({
       x: rand() * width,
@@ -101,40 +137,39 @@ var init = function() {
     });
   }
 
-  // Tạo sao băng
+  // Tạo sao băng - Giảm số lượng trên mobile
   var shootingStars = [];
-  var maxShootingStars = mobile ? 6 : 12;
+  var maxShootingStars = mobile ? 3 : 6;
 
   var createShootingStar = function() {
-    // Random vị trí xuất phát từ các góc khác nhau
     var fromX, fromY, angle;
     var corner = Math.floor(rand() * 4);
     
     switch(corner) {
-      case 0: // Góc trên trái
+      case 0:
         fromX = rand() * width * 0.3;
         fromY = rand() * height * 0.2;
-        angle = Math.PI / 4 + rand() * 0.3; // 45-60 độ
+        angle = Math.PI / 4 + rand() * 0.3;
         break;
-      case 1: // Góc trên phải
+      case 1:
         fromX = width - rand() * width * 0.3;
         fromY = rand() * height * 0.2;
-        angle = Math.PI * 3/4 - rand() * 0.3; // 120-135 độ
+        angle = Math.PI * 3/4 - rand() * 0.3;
         break;
-      case 2: // Góc trái
+      case 2:
         fromX = rand() * width * 0.1;
         fromY = rand() * height * 0.5;
-        angle = Math.PI / 6 + rand() * 0.2; // 30-45 độ
+        angle = Math.PI / 6 + rand() * 0.2;
         break;
-      case 3: // Góc phải
+      case 3:
         fromX = width - rand() * width * 0.1;
         fromY = rand() * height * 0.5;
-        angle = Math.PI * 5/6 - rand() * 0.2; // 135-150 độ
+        angle = Math.PI * 5/6 - rand() * 0.2;
         break;
     }
 
-    var length = mobile ? rand() * 100 + 50 : rand() * 200 + 100;
-    var speed = mobile ? rand() * 3 + 2 : rand() * 5 + 3;
+    var length = mobile ? rand() * 80 + 40 : rand() * 200 + 100;
+    var speed = mobile ? rand() * 2 + 1.5 : rand() * 5 + 3;
 
     return {
       x: fromX,
@@ -152,18 +187,15 @@ var init = function() {
     };
   };
 
-  // Khởi tạo vài sao băng ban đầu
-  for (var i = 0; i < Math.min(3, maxShootingStars); i++) {
+  for (var i = 0; i < Math.min(2, maxShootingStars); i++) {
     var star = createShootingStar();
-    star.life = rand() * 0.5; // Random trạng thái ban đầu
+    star.life = rand() * 0.5;
     shootingStars.push(star);
   }
 
-  // Hàm vẽ sao băng
   var drawShootingStars = function() {
     if (!config.showShootingStars) return;
 
-    // Vẽ ngôi sao nền
     for (var i = 0; i < stars.length; i++) {
       var star = stars[i];
       var twinkle = Math.sin(time * star.twinkleSpeed + star.twinkleOffset) * 0.3 + 0.7;
@@ -178,12 +210,10 @@ var init = function() {
     }
     ctx.globalAlpha = 1;
 
-    // Tạo sao băng mới nếu chưa đủ
-    if (shootingStars.length < maxShootingStars && rand() < 0.01 * config.speed) {
+    if (shootingStars.length < maxShootingStars && rand() < 0.008 * config.speed) {
       shootingStars.push(createShootingStar());
     }
 
-    // Cập nhật và vẽ sao băng
     for (var i = shootingStars.length - 1; i >= 0; i--) {
       var star = shootingStars[i];
       
@@ -192,18 +222,15 @@ var init = function() {
         continue;
       }
 
-      // Cập nhật vị trí
       star.x += Math.cos(star.angle) * star.speed;
       star.y += Math.sin(star.angle) * star.speed;
       star.life -= 0.005 * config.speed;
 
-      // Lưu lại vết (tail)
       star.tail.push({ x: star.x, y: star.y });
       if (star.tail.length > Math.floor(star.length / 3)) {
         star.tail.shift();
       }
 
-      // Kiểm tra nếu hết đời hoặc ra khỏi màn hình
       if (star.life <= 0 || 
           star.x < -50 || star.x > width + 50 || 
           star.y < -50 || star.y > height + 50) {
@@ -212,16 +239,13 @@ var init = function() {
         continue;
       }
 
-      // Vẽ sao băng
       ctx.save();
       
-      // Vẽ đuôi (tail)
       var tailLength = star.tail.length;
       for (var j = 0; j < tailLength; j++) {
         var progress = j / tailLength;
         var alpha = star.opacity * star.life * progress * 0.8;
         
-        // Gradient màu từ màu chính sang trắng
         var colorInfo = colorMap[config.color] || colorMap.red;
         var hue = colorInfo.hue + (1 - progress) * 20;
         var sat = colorInfo.sat - (1 - progress) * 20;
@@ -236,7 +260,6 @@ var init = function() {
         ctx.fillRect(star.tail[j].x - size/2, star.tail[j].y - size/2, size, size);
       }
       
-      // Vẽ đầu sao băng (sáng nhất)
       ctx.globalAlpha = star.opacity * star.life;
       ctx.shadowBlur = 40;
       ctx.shadowColor = config.color;
@@ -246,7 +269,6 @@ var init = function() {
       ctx.arc(star.x, star.y, headSize/2, 0, Math.PI * 2);
       ctx.fill();
       
-      // Vẽ glow xung quanh đầu
       ctx.globalAlpha = star.opacity * star.life * 0.3;
       ctx.shadowBlur = 80;
       ctx.shadowColor = config.color;
@@ -258,8 +280,6 @@ var init = function() {
       ctx.restore();
     }
   };
-
-  // === KẾT THÚC HIỆU ỨNG SAO BĂNG ===
 
   // Hàm tạo trái tim
   var heartPosition = function(rad) {
@@ -273,14 +293,14 @@ var init = function() {
     return [dx + pos[0] * sx, dy + pos[1] * sy];
   };
 
-  // Tạo điểm cho trái tim
+  // Tạo điểm cho trái tim - Tối ưu cho mobile
   var generateHeartPoints = function() {
     var points = [];
-    var dr = mobile ? 0.25 : 0.1;
+    var dr = mobile ? 0.3 : 0.1; // Giảm độ phân giải trên mobile
     var scales = mobile ? [
-      [160, 10],
-      [120, 7],
-      [70, 4]
+      [140, 9],
+      [100, 6],
+      [60, 3]
     ] : [
       [210, 13],
       [150, 9],
@@ -330,16 +350,15 @@ var init = function() {
       particles[i] = {
         vx: 0,
         vy: 0,
-        R: mobile ? 1.5 : 2,
-        speed: (rand() + 3) * 0.8,
+        R: mobile ? 1.2 : 2,
+        speed: (rand() + 2) * 0.7, // Giảm tốc độ trên mobile
         q: ~~(rand() * heartPointsCount),
         D: 2 * (i % 2) - 1,
-        force: 0.2 * rand() + 0.6,
+        force: 0.2 * rand() + 0.5,
         f: "hsla(" + hue + "," + sat + "%," + light + "%,0.4)",
         trace: []
       };
       
-      // Tạo trace
       var traceCount = config.traceCount;
       for (var k = 0; k < traceCount; k++) {
         particles[i].trace[k] = { x: x, y: y };
@@ -354,20 +373,18 @@ var init = function() {
   var textX = width / 2;
   var textY = height / 2 + 120;
 
-  // Hàm vẽ chữ
+  // Hàm vẽ chữ - Tối ưu font size trên mobile
   var drawText = function() {
     if (!config.showText) return;
     
     var text = config.text;
-    var fontSize = Math.min(width / 12, height / 8, 70);
+    var fontSize = Math.min(width / 10, height / 7, mobile ? 50 : 70);
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
-    // Vị trí chữ: phía trên trái tim
-    var textYOffset = -height / 2.5;
+    var textYOffset = -height / 2.8;
     
-    // Tạo gradient cho chữ
     var gradient = ctx.createLinearGradient(
         textX - fontSize * 2, 
         textY + textYOffset - fontSize/2,
@@ -375,7 +392,6 @@ var init = function() {
         textY + textYOffset + fontSize/2
     );
     
-    // Lấy màu từ config
     var colorInfo = colorMap[config.color] || colorMap.red;
     gradient.addColorStop(0, 'hsla(' + colorInfo.hue + ',' + colorInfo.sat + '%,' + (colorInfo.light + 20) + '%,1)');
     gradient.addColorStop(0.5, 'hsla(' + (colorInfo.hue + 20) + ',' + (colorInfo.sat + 10) + '%,' + (colorInfo.light + 40) + '%,1)');
@@ -383,7 +399,6 @@ var init = function() {
     
     ctx.font = '700 ' + fontSize + 'px "Dancing Script", cursive, sans-serif';
     
-    // Hiệu ứng đổ bóng nhiều lớp
     ctx.shadowColor = 'rgba(0,0,0,0.8)';
     ctx.shadowBlur = 20;
     ctx.shadowOffsetX = 3;
@@ -411,21 +426,21 @@ var init = function() {
     ctx.lineWidth = 1;
     ctx.strokeText(text, textX, textY + textYOffset);
     
-    // Hiệu ứng sparkle
-    var sparkleCount = 8;
+    // Giảm sparkle trên mobile
+    var sparkleCount = mobile ? 6 : 8;
     for (var i = 0; i < sparkleCount; i++) {
         var angle = (i / sparkleCount) * Math.PI * 2 + time * 0.5;
-        var radius = fontSize * 0.8 + Math.sin(time * 2 + i) * 10;
+        var radius = fontSize * 0.7 + Math.sin(time * 2 + i) * 8;
         var sx = textX + Math.cos(angle) * radius;
         var sy = textY + textYOffset + Math.sin(angle) * radius * 0.3;
         
-        var size = 2 + Math.sin(time * 3 + i * 1.5) * 1;
+        var size = 1.5 + Math.sin(time * 3 + i * 1.5) * 0.8;
         ctx.shadowBlur = 15;
         ctx.shadowColor = config.color;
         ctx.globalAlpha = 0.4 + Math.sin(time * 2 + i) * 0.2;
         ctx.fillStyle = '#fff';
         ctx.beginPath();
-        ctx.arc(sx, sy, Math.max(1, size), 0, Math.PI * 2);
+        ctx.arc(sx, sy, Math.max(0.5, size), 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
     } 
@@ -444,14 +459,11 @@ var init = function() {
     var timeStep = ((Math.sin(time)) < 0 ? 9 : (n > 0.8) ? 0.2 : 1) * config.timeDelta * speedMultiplier;
     time += timeStep;
     
-    // Xóa mờ
     ctx.fillStyle = "rgba(0,0,0,0.08)";
     ctx.fillRect(0, 0, width, height);
     
-    // Vẽ sao băng (vẽ trước các hạt để nằm dưới)
     drawShootingStars();
     
-    // Cập nhật và vẽ hạt
     var particleCount = particles.length;
     for (var i = particleCount - 1; i >= 0; i--) {
       var u = particles[i];
@@ -496,10 +508,8 @@ var init = function() {
       }
     }
     
-    // Vẽ chữ
     drawText();
     
-    // Vẽ glow trái tim
     ctx.save();
     ctx.globalAlpha = 0.05;
     ctx.shadowColor = config.color;
@@ -513,14 +523,12 @@ var init = function() {
     window.requestAnimationFrame(loop, canvas);
   };
 
-    // === ĐIỀU KHIỂN ===
+  // === ĐIỀU KHIỂN ===
 
-  // Lấy các element
   var toggleBtn = document.getElementById('toggleControlsBtn');
   var controls = document.getElementById('controls');
   var hideBtn = document.getElementById('hideControls');
 
-  // Mặc định: controls hiển thị, nút toggle ẩn
   if (controls) {
     controls.classList.remove('hidden');
   }
@@ -528,31 +536,28 @@ var init = function() {
     toggleBtn.classList.add('hidden-btn');
   }
 
-  // Ẩn controls (khi nhấn nút "Ẩn điều khiển")
   if (hideBtn) {
     hideBtn.addEventListener('click', function() {
       if (controls) {
         controls.classList.add('hidden');
       }
       if (toggleBtn) {
-        toggleBtn.classList.remove('hidden-btn'); // Hiện nút toggle
+        toggleBtn.classList.remove('hidden-btn');
       }
     });
   }
 
-  // Hiện controls (khi nhấn nút ⚙️)
   if (toggleBtn) {
     toggleBtn.addEventListener('click', function() {
       if (controls) {
         controls.classList.remove('hidden');
       }
       if (toggleBtn) {
-        toggleBtn.classList.add('hidden-btn'); // Ẩn nút toggle
+        toggleBtn.classList.add('hidden-btn');
       }
     });
   }
 
-  // Tốc độ
   var speedControl = document.getElementById('speedControl');
   if (speedControl) {
     speedControl.addEventListener('input', function(e) {
@@ -562,7 +567,6 @@ var init = function() {
     });
   }
 
-  // Số lượng hạt
   var particleControl = document.getElementById('particleControl');
   var particleTimeout;
   if (particleControl) {
@@ -579,7 +583,6 @@ var init = function() {
     });
   }
 
-  // Màu sắc từ các nút có sẵn
   document.querySelectorAll('.color-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.color-btn').forEach(function(b) {
@@ -590,7 +593,6 @@ var init = function() {
       var colorName = this.dataset.color;
       config.color = colorName;
 
-      // Cập nhật màu cho hạt
       var colorInfo = colorMap[colorName] || colorMap.red;
       for (var i = 0; i < particles.length; i++) {
         var u = particles[i];
@@ -600,9 +602,7 @@ var init = function() {
         u.f = "hsla(" + hue + "," + sat + "%," + light + "%,0.4)";
       }
       
-      // Cập nhật color picker để đồng bộ
       if (customColorPicker) {
-        // Chuyển đổi tên màu sang HEX (nếu có thể)
         var hexColor = getColorHex(colorName);
         if (hexColor) {
           customColorPicker.value = hexColor;
@@ -613,32 +613,27 @@ var init = function() {
     });
   });
 
-  // === COLOR PICKER ===
   var customColorPicker = document.getElementById('customColorPicker');
   var colorHexValue = document.getElementById('colorHexValue');
   var applyColorBtn = document.getElementById('applyColorBtn');
 
-  // Cập nhật hiển thị mã màu khi chọn
   if (customColorPicker) {
     customColorPicker.addEventListener('input', function(e) {
       var color = e.target.value;
       if (colorHexValue) {
         colorHexValue.textContent = color;
       }
-      // Preview màu trên nút áp dụng
       if (applyColorBtn) {
         applyColorBtn.style.background = color;
       }
     });
   }
 
-  // Áp dụng màu từ Color Picker
   if (applyColorBtn) {
     applyColorBtn.addEventListener('click', function() {
       var color = customColorPicker.value;
       config.color = color;
       
-      // Cập nhật màu cho hạt
       var colorInfo = hexToHsl(color);
       for (var i = 0; i < particles.length; i++) {
         var u = particles[i];
@@ -648,19 +643,14 @@ var init = function() {
         u.f = "hsla(" + hue + "," + sat + "%," + light + "%,0.4)";
       }
       
-      // Bỏ active ở các nút màu có sẵn
       document.querySelectorAll('.color-btn').forEach(function(b) {
         b.classList.remove('active');
       });
     });
   }
 
-  // Hàm chuyển đổi HEX sang HSL
   function hexToHsl(hex) {
-    // Xóa dấu # nếu có
     hex = hex.replace('#', '');
-    
-    // Chuyển HEX sang RGB
     var r = parseInt(hex.substring(0, 2), 16) / 255;
     var g = parseInt(hex.substring(2, 4), 16) / 255;
     var b = parseInt(hex.substring(4, 6), 16) / 255;
@@ -695,7 +685,6 @@ var init = function() {
     };
   }
 
-  // Hàm lấy mã HEX từ tên màu
   function getColorHex(colorName) {
     var colorMapHex = {
       red: '#ff1744',
@@ -730,7 +719,6 @@ var init = function() {
     return colorMapHex[colorName] || null;
   }
 
-  // Hiển thị chữ
   var textToggle = document.getElementById('textToggle');
   if (textToggle) {
     textToggle.addEventListener('change', function(e) {
@@ -738,7 +726,6 @@ var init = function() {
     });
   }
 
-  // Cập nhật chữ
   var updateTextBtn = document.getElementById('updateTextBtn');
   var textInput = document.getElementById('textInput');
   
@@ -761,7 +748,6 @@ var init = function() {
     });
   }
 
-  // Bật/tắt sao băng
   var starToggle = document.getElementById('starToggle');
   if (starToggle) {
     starToggle.addEventListener('change', function(e) {
@@ -769,16 +755,17 @@ var init = function() {
     });
   }
 
-  // Resize
+  // === RESIZE TỐI ƯU CHO MOBILE ===
   var resizeTimeout;
   window.addEventListener('resize', function() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function() {
-        var newWidth = canvas.width = koef * innerWidth;
-        var newHeight = canvas.height = koef * innerHeight;
-        width = newWidth;
-        height = newHeight;
+        var newSize = setupCanvas(canvas, ctx);
+        width = newSize.width;
+        height = newSize.height;
+        dpr = newSize.dpr;
         textX = width / 2;
+        
         ctx.fillStyle = "rgba(0,0,0,1)";
         ctx.fillRect(0, 0, width, height);
         
@@ -795,11 +782,9 @@ var init = function() {
     }, 200);
   });
 
-  // Khởi động
   loop();
 };
 
-// DOM ready
 var s = document.readyState;
 if (s === 'complete' || s === 'loaded' || s === 'interactive') init();
 else document.addEventListener('DOMContentLoaded', init, false);
