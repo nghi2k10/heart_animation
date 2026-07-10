@@ -63,7 +63,7 @@ canvas {
   color: #fff;
   font-family: 'Segoe UI', Arial, sans-serif;
   z-index: 1000;
-  min-width: 280px;
+  min-width: 320px;
   max-width: 90%;
   max-height: 70vh;
   overflow-y: auto;
@@ -142,16 +142,90 @@ canvas {
   border: none;
 }
 
+/* === COLOR PICKER === */
+.color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.color-picker-wrapper input[type="color"] {
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 2px;
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-picker-wrapper input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.color-picker-wrapper input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.color-hex {
+  font-size: 13px;
+  font-family: 'Courier New', monospace;
+  color: rgba(255, 255, 255, 0.7);
+  flex: 1;
+}
+
+.apply-color-btn {
+  padding: 6px 16px;
+  background: linear-gradient(135deg, #ff1744, #d50000);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.apply-color-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(255, 23, 68, 0.4);
+}
+
+.apply-color-btn:active {
+  transform: scale(0.95);
+}
+
+/* === MÀU SẮC - 2 HÀNG === */
 .color-options {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 6px;
   margin-top: 5px;
 }
 
+.color-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
 .color-btn {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
@@ -167,7 +241,7 @@ canvas {
 
 .color-btn.active {
   border-color: #fff;
-  box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
   transform: scale(1.15);
 }
 
@@ -178,9 +252,15 @@ canvas {
   left: 50%;
   transform: translate(-50%, -50%);
   color: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Điều chỉnh cho màu trắng */
+.color-btn[data-color="white"].active::after {
+  color: rgba(0, 0, 0, 0.8);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 
 #textInput {
@@ -272,8 +352,36 @@ canvas {
   }
   
   .color-btn {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .color-btn.active::after {
+    font-size: 10px;
+  }
+  
+  .color-row {
+    gap: 4px;
+  }
+  
+  .color-picker-wrapper {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .color-picker-wrapper input[type="color"] {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .color-hex {
+    font-size: 11px;
+    min-width: 60px;
+  }
+  
+  .apply-color-btn {
+    font-size: 11px;
+    padding: 5px 12px;
   }
   
   .toggle-fixed {

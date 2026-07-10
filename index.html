@@ -28,14 +28,33 @@
     
     <div class="control-group">
       <label>Màu sắc:</label>
+      
+      <!-- Color Picker tùy chỉnh -->
+      <div class="color-picker-wrapper">
+        <input type="color" id="customColorPicker" value="#ff1744">
+        <span class="color-hex" id="colorHexValue">#ff1744</span>
+        <button class="apply-color-btn" id="applyColorBtn">Áp dụng</button>
+      </div>
+      
+      <!-- Các màu có sẵn - 2 hàng -->
       <div class="color-options">
-        <button class="color-btn active" data-color="red" style="background: #ff1744;"></button>
-        <button class="color-btn" data-color="pink" style="background: #ff6b9d;"></button>
-        <button class="color-btn" data-color="purple" style="background: #9c27b0;"></button>
-        <button class="color-btn" data-color="blue" style="background: #2979ff;"></button>
-        <button class="color-btn" data-color="green" style="background: #00e676;"></button>
-        <button class="color-btn" data-color="gold" style="background: #ffd700;"></button>
-        <button class="color-btn" data-color="white" style="background: #ffffff;"></button>
+        <!-- Hàng 1: Màu cơ bản -->
+        <div class="color-row">
+          <button class="color-btn active" data-color="red" style="background: #ff1744;" title="Đỏ"></button>
+          <button class="color-btn" data-color="pink" style="background: #ff6b9d;" title="Hồng"></button>
+          <button class="color-btn" data-color="darkPink" style="background: #d81b60;" title="Hồng đậm"></button>
+          <button class="color-btn" data-color="rose" style="background: #f48fb1;" title="Hồng nhạt"></button>
+          <button class="color-btn" data-color="salmon" style="background: #ff8a80;" title="Cá hồi"></button>
+          <button class="color-btn" data-color="coral" style="background: #ff6b6b;" title="San hô"></button>
+          <button class="color-btn" data-color="peach" style="background: #ffccbc;" title="Đào"></button>
+          <button class="color-btn" data-color="orange" style="background: #ff9100;" title="Cam"></button>
+          <button class="color-btn" data-color="gold" style="background: #ffd700;" title="Vàng"></button>
+          <button class="color-btn" data-color="purple" style="background: #9c27b0;" title="Tím"></button>
+          <button class="color-btn" data-color="darkPurple" style="background: #4a148c;" title="Tím than"></button>
+          <button class="color-btn" data-color="lightBlue" style="background: #4fc3f7;" title="Xanh nhạt"></button>
+          <button class="color-btn" data-color="lime" style="background: #76ff03;" title="Xanh chanh"></button>
+          <button class="color-btn" data-color="mint" style="background: #69f0ae;" title="Bạc hà"></button>
+        </div>
       </div>
     </div>
     

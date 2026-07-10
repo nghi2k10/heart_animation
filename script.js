@@ -41,7 +41,7 @@ var init = function() {
     traceCount: mobile ? 15 : 40,
     color: '#ff1744',
     showText: true,
-    text: '❤ Yêu Thương ❤',
+    text: '❤ Have a good day ❤',
     traceK: 0.4,
     timeDelta: 0.01,
     showShootingStars: true // Thêm cấu hình cho sao băng
@@ -49,12 +49,36 @@ var init = function() {
 
   // Bảng màu
   var colorMap = {
+    // Hàng 1: Màu cơ bản (12 màu)
     red: { hue: 0, sat: 80, light: 50 },
+    crimson: { hue: 350, sat: 85, light: 45 },
+    darkRed: { hue: 0, sat: 90, light: 35 },
     pink: { hue: 340, sat: 70, light: 65 },
-    purple: { hue: 280, sat: 70, light: 55 },
-    blue: { hue: 220, sat: 80, light: 55 },
-    green: { hue: 140, sat: 80, light: 50 },
+    darkPink: { hue: 340, sat: 80, light: 45 },
+    rose: { hue: 340, sat: 60, light: 70 },
+    salmon: { hue: 10, sat: 70, light: 65 },
+    coral: { hue: 10, sat: 80, light: 60 },
+    peach: { hue: 20, sat: 60, light: 70 },
+    orange: { hue: 30, sat: 90, light: 55 },
+    amber: { hue: 45, sat: 90, light: 50 },
     gold: { hue: 45, sat: 90, light: 55 },
+    
+    // Hàng 2: Màu mở rộng (12 màu)
+    purple: { hue: 280, sat: 70, light: 55 },
+    darkPurple: { hue: 280, sat: 80, light: 35 },
+    violet: { hue: 270, sat: 70, light: 50 },
+    lavender: { hue: 260, sat: 50, light: 65 },
+    magenta: { hue: 300, sat: 80, light: 50 },
+    indigo: { hue: 230, sat: 70, light: 50 },
+    blue: { hue: 220, sat: 80, light: 55 },
+    lightBlue: { hue: 210, sat: 70, light: 60 },
+    cyan: { hue: 190, sat: 90, light: 50 },
+    teal: { hue: 180, sat: 80, light: 50 },
+    turquoise: { hue: 175, sat: 80, light: 45 },
+    green: { hue: 140, sat: 80, light: 50 },
+    lime: { hue: 120, sat: 80, light: 50 },
+    mint: { hue: 150, sat: 70, light: 55 },
+    chocolate: { hue: 30, sat: 60, light: 30 },
     white: { hue: 0, sat: 0, light: 90 }
   };
 
@@ -489,7 +513,7 @@ var init = function() {
     window.requestAnimationFrame(loop, canvas);
   };
 
-  // === ĐIỀU KHIỂN ===
+    // === ĐIỀU KHIỂN ===
 
   // Lấy các element
   var toggleBtn = document.getElementById('toggleControlsBtn');
@@ -555,7 +579,7 @@ var init = function() {
     });
   }
 
-  // Màu sắc
+  // Màu sắc từ các nút có sẵn
   document.querySelectorAll('.color-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.color-btn').forEach(function(b) {
@@ -566,6 +590,7 @@ var init = function() {
       var colorName = this.dataset.color;
       config.color = colorName;
 
+      // Cập nhật màu cho hạt
       var colorInfo = colorMap[colorName] || colorMap.red;
       for (var i = 0; i < particles.length; i++) {
         var u = particles[i];
@@ -574,8 +599,136 @@ var init = function() {
         var light = colorInfo.light + (rand() - 0.5) * 30;
         u.f = "hsla(" + hue + "," + sat + "%," + light + "%,0.4)";
       }
+      
+      // Cập nhật color picker để đồng bộ
+      if (customColorPicker) {
+        // Chuyển đổi tên màu sang HEX (nếu có thể)
+        var hexColor = getColorHex(colorName);
+        if (hexColor) {
+          customColorPicker.value = hexColor;
+          if (colorHexValue) colorHexValue.textContent = hexColor;
+          if (applyColorBtn) applyColorBtn.style.background = hexColor;
+        }
+      }
     });
   });
+
+  // === COLOR PICKER ===
+  var customColorPicker = document.getElementById('customColorPicker');
+  var colorHexValue = document.getElementById('colorHexValue');
+  var applyColorBtn = document.getElementById('applyColorBtn');
+
+  // Cập nhật hiển thị mã màu khi chọn
+  if (customColorPicker) {
+    customColorPicker.addEventListener('input', function(e) {
+      var color = e.target.value;
+      if (colorHexValue) {
+        colorHexValue.textContent = color;
+      }
+      // Preview màu trên nút áp dụng
+      if (applyColorBtn) {
+        applyColorBtn.style.background = color;
+      }
+    });
+  }
+
+  // Áp dụng màu từ Color Picker
+  if (applyColorBtn) {
+    applyColorBtn.addEventListener('click', function() {
+      var color = customColorPicker.value;
+      config.color = color;
+      
+      // Cập nhật màu cho hạt
+      var colorInfo = hexToHsl(color);
+      for (var i = 0; i < particles.length; i++) {
+        var u = particles[i];
+        var hue = colorInfo.hue + (rand() - 0.5) * 20;
+        var sat = colorInfo.sat + (rand() - 0.5) * 20;
+        var light = colorInfo.light + (rand() - 0.5) * 30;
+        u.f = "hsla(" + hue + "," + sat + "%," + light + "%,0.4)";
+      }
+      
+      // Bỏ active ở các nút màu có sẵn
+      document.querySelectorAll('.color-btn').forEach(function(b) {
+        b.classList.remove('active');
+      });
+    });
+  }
+
+  // Hàm chuyển đổi HEX sang HSL
+  function hexToHsl(hex) {
+    // Xóa dấu # nếu có
+    hex = hex.replace('#', '');
+    
+    // Chuyển HEX sang RGB
+    var r = parseInt(hex.substring(0, 2), 16) / 255;
+    var g = parseInt(hex.substring(2, 4), 16) / 255;
+    var b = parseInt(hex.substring(4, 6), 16) / 255;
+    
+    var max = Math.max(r, g, b);
+    var min = Math.min(r, g, b);
+    var h, s, l = (max + min) / 2;
+    
+    if (max === min) {
+      h = s = 0;
+    } else {
+      var d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      
+      switch (max) {
+        case r:
+          h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+          break;
+        case g:
+          h = ((b - r) / d + 2) / 6;
+          break;
+        case b:
+          h = ((r - g) / d + 4) / 6;
+          break;
+      }
+    }
+    
+    return {
+      hue: Math.round(h * 360),
+      sat: Math.round(s * 100),
+      light: Math.round(l * 100)
+    };
+  }
+
+  // Hàm lấy mã HEX từ tên màu
+  function getColorHex(colorName) {
+    var colorMapHex = {
+      red: '#ff1744',
+      crimson: '#d50000',
+      darkRed: '#b71c1c',
+      pink: '#ff6b9d',
+      darkPink: '#d81b60',
+      rose: '#f48fb1',
+      salmon: '#ff8a80',
+      coral: '#ff6b6b',
+      peach: '#ffccbc',
+      orange: '#ff9100',
+      amber: '#ffa000',
+      gold: '#ffd700',
+      purple: '#9c27b0',
+      darkPurple: '#4a148c',
+      violet: '#8e44ad',
+      lavender: '#b39ddb',
+      magenta: '#e91e63',
+      indigo: '#3f51b5',
+      blue: '#2979ff',
+      lightBlue: '#4fc3f7',
+      cyan: '#00bcd4',
+      teal: '#00bfa5',
+      turquoise: '#1abc9c',
+      green: '#00e676',
+      lime: '#76ff03',
+      mint: '#69f0ae',
+      chocolate: '#795548',
+      white: '#ffffff'
+    };
+    return colorMapHex[colorName] || null;
+  }
 
   // Hiển thị chữ
   var textToggle = document.getElementById('textToggle');
