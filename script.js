@@ -166,7 +166,7 @@ var drawText = function() {
     ctx.textBaseline = 'middle';
     
     // Vị trí chữ: phía trên trái tim
-    var textYOffset = -height / 3.5; // Điều chỉnh vị trí
+    var textYOffset = -height / 2; // Điều chỉnh vị trí
     
     // Tạo gradient cho chữ
     var gradient = ctx.createLinearGradient(
